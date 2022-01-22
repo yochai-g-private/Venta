@@ -1,0 +1,10 @@
+AT+RESTORE
+
+
+AT+RST
+AT+CWMODE=1
+AT+CWJAP="HomeNet","1357864200"
+AT+CIPSTA?
+AT+CIPSTART="TCP","api.timezonedb.com",80
+AT+CIPSEND=153
+GET http://api.timezonedb.com/v2/get-time-zone?key=FY1HFJBKCESS&format=xml&fields=gmtOffset,dst,dstStart,dstEnd,timestamp&by=zone&zone=Asia/Jerusalem
