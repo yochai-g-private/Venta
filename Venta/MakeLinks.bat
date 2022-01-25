@@ -13,6 +13,7 @@ call :Link_LIB      SevenSegmentFun     src
 call :Link_LIB      TimeLib             .
 call :Link_LIB      DS3231              .
 call :Link_LIB      LiquidCrystal_I2C   .
+call :Link_LIB      IRremote            .
 
 call :Link_LIB      NYG
 
