@@ -4,8 +4,10 @@
 
 #if _USE_MEGA_ESP
 #include "MegaEsp.h"
+#include "main.h"
 
 static bool OK = false;
+static DigitalOutputPin     st_motion_sensors_switch(MOTION_SENSORS_SWITCH_MOSFET_PIN);
 
 //------------------------------------------------------------------------------------------
 struct AppCfg : public MegaEsp::Cfg
@@ -40,6 +42,7 @@ void setup()
 
     OK = MegaEsp::OnSetup(cfg, NULL, callback);
 
+    st_motion_sensors_switch.On();
  //   MegaEsp::Beep(500, OK ? 1 : 10);
 }
 //------------------------------------------------------------------------------------------
