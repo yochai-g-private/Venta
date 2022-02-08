@@ -4,12 +4,14 @@
 #include "main.h"
 #include "InputMgr.h"
 #include "OutputMgr.h"
+#include "StdIR.h"
 
 static bool OK = false;
-static Relay st_main_relay(MAIN_RELAY_PIN);
 static IMgr** st_mgrs;
 
 State gbl_state = { 0 };
+
+static void showHumidityAndTemperature();
 
 //------------------------------------------------------------------------------------------
 struct AppCfg : public MegaEsp::Cfg
@@ -81,16 +83,6 @@ class Callback : public MegaEsp::ICallback
 
     void OnSecondChangedEvent()
     {
-#if 0
-        if(gbl_state.read_sensors == false                       && 
-           GetSensorsRelayState()                                &&
-           !gbl_state.sensors_activation_time.IsZero()           &&
-           gbl_state.sensors_activation_time.GetElapsed() >= 60 )
-        {
-            gbl_state.read_sensors = true;
-            LOGGER << "Sensors activated" << NL;
-        }
-#endif
     }
 
     void OnKodeshChangedEvent(bool is_kodesh)                           
@@ -141,15 +133,12 @@ class Callback : public MegaEsp::ICallback
             {
                 char line[33];
                 strcpy(line, "Temperat: "); dtostrf(GetEnvTemperature(), 2, 2, &line[strlen(line)]);
-                //sprintf(line, "Temperat: %d.%02d", (int)gbl_state.temperature, ((int)gbl_state.temperature*100)%100);
                 MegaEsp::ShowOnScreen(line, 0, true);
                 strcpy(line, "Humidity: "); dtostrf(GetEnvHumidity(), 2, 2, &line[strlen(line)]);
-//                sprintf(line, "Humidity: %d.%02d", (int)gbl_state.humidity,    ((int)gbl_state.humidity*100)%100);
                 MegaEsp::ShowOnScreen(line, 1, false);
+
+                break;
             }
-//Temperat: 22.5
-//Humidity: 45.5%
-            break;
 
             default :
                 cnt = 0;
@@ -160,6 +149,45 @@ class Callback : public MegaEsp::ICallback
         return true;
     }
 
+    bool TreateIrKey(StdIR::Key key)
+    {
+        switch(key)
+        {
+            case StdIR::OK : 
+            {
+                iWantToSleep();
+                break;
+            }
+
+            case StdIR::N0 : 
+            {
+                ToggleRelay(0);
+                break;
+            }
+
+            case StdIR::N1 : 
+            {
+                ToggleRelay(1);
+                break;
+            }
+
+            case StdIR::N2 : 
+            {
+                ToggleRelay(2);
+                break;
+            }
+
+            case StdIR::STAR :
+            {
+                showHumidityAndTemperature();
+                break;
+            }
+
+            default : return false;
+        }
+
+        return true;
+    }
 } callback;
 //------------------------------------------------------------------------------------------
 void setup() 
@@ -217,6 +245,19 @@ void ShowState()
     #undef  SHOW_ONOFF_FLD
 }
 //------------------------------------------------------------------------------------------
+static void showHumidityAndTemperature()
+{
+    static bool H = false;
+    H = !H;
+
+    char s[16];
+    if(H)   sprintf(s, "h%3d", (int) GetEnvHumidity());
+    else    sprintf(s, "t%3d", (int) GetEnvTemperature());
+
+    MegaEsp::GetSSD().PrintText(s);
+
+    delay(5000);
+}
 
 const char*	gbl_build_date = __DATE__;
 const char*	gbl_build_time = __TIME__;

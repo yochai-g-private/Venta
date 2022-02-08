@@ -35,7 +35,7 @@ static void update_humidity_and_temperature()
     static unsigned long last_sample_millis = 0;
     unsigned long sample_millis = millis();
 
-    if((sample_millis - last_sample_millis) < 100)
+    if((sample_millis - last_sample_millis) < 1000)
         return;
 
     last_sample_millis = sample_millis;
@@ -83,7 +83,7 @@ static void update()
     
     bool on;
     set_state(room_motion_detected      , st_room_motion_sensor.Get());
-    //set_state(storage_motion_detected   , st_storage_motion_sensor.Get());
+    set_state(storage_motion_detected   , st_storage_motion_sensor.Get());
     set_state(light_detected            , st_light_sensor.Get());
 }
 //--------------------------------------------------------------------------

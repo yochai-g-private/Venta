@@ -1,26 +1,37 @@
 #include "OutputMgr.h"
 #include "TimeEx.h"
 
+#define TESTING     1
+
+#if TESTING
+    #define TIMER_FACTOR        10UL
+    #define WAKEUP_MINUTES      5
+#else
+    #define TIMER_FACTOR       (uint32_t) SECONDS_PER_MINUTE
+    #define WAKEUP_MINUTES      120
+#endif //TESTING
+
 static uint8_t  st_storage_light_delay_minutes  = 5;
 
 static uint8_t  st_venta_start_hour             = 8;
 static uint8_t  st_venta_end_hour               = 20;
 static uint8_t  st_venta_off_delay_minutes      = 5;
+static uint8_t  st_wakeup_minutes               = WAKEUP_MINUTES;
 
+static Relay    st_main_relay(MAIN_RELAY_PIN);
 static Relay    st_light_relay(LIGHT_RELAY_PIN);
 static Relay    st_venta_relay(VENTA_RELAY_PIN);
+static Relay*   st_relays[] = { &st_main_relay, &st_venta_relay, &st_light_relay };
 
 static Scheduler::Handler   st_light_scheduler_handler;
 static Scheduler::Handler   st_venta_scheduler_handler;
+static Scheduler::Handler   st_wakeup_handler;
 
 static void update();
 static void set_initial_light_state();
 static bool set_light_relay();
 static void set_initial_venta_state();
 static bool set_venta_relay();
-
-#define TIMER_FACTOR        10UL
-//#define TIMER_FACTOR       (uint32_t) SECONDS_PER_MINUTE
 
 #define DEBUG_ME 0
 #if DEBUG_ME
@@ -32,6 +43,8 @@ static bool set_venta_relay();
 //--------------------------------------------------------------------------
 void InitializeOutputs()
 {
+    st_main_relay.On();
+
     set_initial_light_state();
     set_light_relay();
 
@@ -70,7 +83,7 @@ static void light_off(void*)
 //--------------------------------------------------------------------------
 static void set_initial_venta_state()
 {
-    if(gbl_state.is_kodesh)
+    if(gbl_state.is_kodesh || Scheduler::IsScheduled(st_wakeup_handler))
     {
         gbl_state.venta_state = false;
         return;
@@ -104,6 +117,12 @@ static void venta_on(void*)
     if(gbl_state.is_kodesh)
         return;
 
+    if(gbl_state.light_detected || gbl_state.room_motion_detected || gbl_state.storage_motion_detected)
+        return;
+
+    if(Scheduler::IsScheduled(st_wakeup_handler))
+        return;
+
     set_initial_venta_state();
 
     set_venta_relay();
@@ -118,6 +137,7 @@ static void update()
 
         Scheduler::Cancel(st_light_scheduler_handler);
         Scheduler::Cancel(st_venta_scheduler_handler);
+        Scheduler::Cancel(st_wakeup_handler);
 
         return;
     }
@@ -125,6 +145,9 @@ static void update()
     static State state;
     if(!objequal(state, gbl_state))
     {
+        if(gbl_state.light_detected && !state.light_detected)
+            Scheduler::Cancel(st_wakeup_handler);
+
         state = gbl_state;
         ShowState();   
     }
@@ -260,4 +283,21 @@ Cfg::Item&  GetOutputCfg()
     return st_OutputCfg;
 }
 //--------------------------------------------------------------------------
+void ToggleRelay(int n)
+{
+    if(n < 0 || n > countof(st_relays))
+        return;
 
+    st_relays[n]->Toggle();
+    delay(5000);
+    st_relays[n]->Toggle();
+}
+//--------------------------------------------------------------------------
+void iWantToSleep()
+{
+    set_venta_relay(false);
+    Scheduler::Cancel(st_venta_scheduler_handler);
+    MegaEsp::AddToScheduler(st_wakeup_handler, venta_on, "Wakeup", (uint32_t)SECONDS_PER_MINUTE * (uint32_t)st_wakeup_minutes);
+}
+//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
