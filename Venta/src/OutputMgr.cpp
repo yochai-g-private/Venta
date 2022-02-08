@@ -288,7 +288,9 @@ void ToggleRelay(int n)
     if(n < 0 || n > countof(st_relays))
         return;
 
+    static const char* names[] = { "MAIN", "VENTA", "LIGHT" };
     st_relays[n]->Toggle();
+    MegaEsp::ShowOnScreen2(names[n], ONOFF(st_relays[n]->IsOn()).Get());
     delay(5000);
     st_relays[n]->Toggle();
 }
@@ -296,7 +298,9 @@ void ToggleRelay(int n)
 void iWantToSleep()
 {
     set_venta_relay(false);
-    Scheduler::Cancel(st_venta_scheduler_handler);
+    Scheduler::Cancel(st_venta_scheduler_handler);        
+    MegaEsp::ShowOnScreen2("SLEEP  NOW", "!שינה ערבה", true);
+    delay(5000);
     MegaEsp::AddToScheduler(st_wakeup_handler, venta_on, "Wakeup", (uint32_t)SECONDS_PER_MINUTE * (uint32_t)st_wakeup_minutes);
 }
 //--------------------------------------------------------------------------

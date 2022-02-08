@@ -151,42 +151,43 @@ class Callback : public MegaEsp::ICallback
 
     bool TreateIrKey(StdIR::Key key)
     {
+        static const char title[] = "Application Menu";
+        bool ok = true;
+
         switch(key)
         {
+            case StdIR::DIEZ : 
+                break;
+
             case StdIR::OK : 
-            {
                 iWantToSleep();
                 break;
-            }
 
             case StdIR::N0 : 
-            {
                 ToggleRelay(0);
                 break;
-            }
 
             case StdIR::N1 : 
-            {
                 ToggleRelay(1);
                 break;
-            }
 
             case StdIR::N2 : 
-            {
                 ToggleRelay(2);
                 break;
-            }
 
             case StdIR::STAR :
-            {
                 showHumidityAndTemperature();
                 break;
-            }
 
-            default : return false;
+            default : 
+                MegaEsp::ShowOnScreen2(title, "Key not in use!");
+                delay(2000);
+                ok = false;
         }
 
-        return true;
+        MegaEsp::ShowOnScreen2(title, "OK, 0-2, *");
+
+        return ok;
     }
 } callback;
 //------------------------------------------------------------------------------------------
