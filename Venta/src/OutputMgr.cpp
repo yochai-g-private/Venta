@@ -299,7 +299,7 @@ void iWantToSleep()
 {
     set_venta_relay(false);
     Scheduler::Cancel(st_venta_scheduler_handler);        
-    MegaEsp::ShowOnScreen2("SLEEP  NOW", "!שינה ערבה", true);
+    MegaEsp::ShowOnScreen2("SLEEP  NOW", "שינה ערבה!", true);
     delay(5000);
     MegaEsp::AddToScheduler(st_wakeup_handler, venta_on, "Wakeup", (uint32_t)SECONDS_PER_MINUTE * (uint32_t)st_wakeup_minutes);
 }

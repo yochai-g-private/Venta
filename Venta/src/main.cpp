@@ -156,7 +156,7 @@ class Callback : public MegaEsp::ICallback
 
         switch(key)
         {
-            case StdIR::DIEZ : 
+            case INVALID_IR_KEY : 
                 break;
 
             case StdIR::OK : 
@@ -175,7 +175,7 @@ class Callback : public MegaEsp::ICallback
                 ToggleRelay(2);
                 break;
 
-            case StdIR::STAR :
+            case StdIR::DIEZ :
                 showHumidityAndTemperature();
                 break;
 
@@ -185,7 +185,7 @@ class Callback : public MegaEsp::ICallback
                 ok = false;
         }
 
-        MegaEsp::ShowOnScreen2(title, "OK, 0-2, *");
+        MegaEsp::ShowOnScreen2(title, "OK, 0-2, #");
 
         return ok;
     }
