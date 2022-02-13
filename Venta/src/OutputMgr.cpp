@@ -1,8 +1,6 @@
 #include "OutputMgr.h"
 #include "TimeEx.h"
 
-#define TESTING     1
-
 #if TESTING
     #define TIMER_FACTOR        10UL
     #define WAKEUP_MINUTES      5

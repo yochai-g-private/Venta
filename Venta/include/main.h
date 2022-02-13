@@ -5,6 +5,8 @@
 #include "IOutput.h"
 #include "MegaEsp.h"
 
+#define TESTING     0
+
 enum Pins
 {
     MOTION_SENSORS_SWITCH_MOSFET_PIN            = D3,
@@ -12,8 +14,8 @@ enum Pins
     ROOM_MOTION_SENSOR_PIN                      = D23,
     STORAGE_MOTION_SENSOR_PIN                   = A3,
     MAIN_RELAY_PIN                              = A9,
-    VENTA_RELAY_PIN                             = A11,
-    LIGHT_RELAY_PIN                             = A13,
+    LIGHT_RELAY_PIN                             = A11,
+    VENTA_RELAY_PIN                             = A13,
 
     LIGHT_SENSOR_PIN                            = D22,
 };
