@@ -232,7 +232,7 @@ void ShowState()
     #define SHOW_ONOFF_FLD(fld)    show_state_field( #fld, gbl_state.fld, true )
     #define SHOW_FLD(fld)          show_state_field( #fld, gbl_state.fld )
 
-    SHOW_ONOFF_FLD(simulation);
+//    SHOW_ONOFF_FLD(simulation);
     SHOW_BOOL_FLD(is_day);
     SHOW_BOOL_FLD(is_kodesh);
     SHOW_BOOL_FLD(room_motion_detected);

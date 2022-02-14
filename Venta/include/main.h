@@ -29,7 +29,7 @@ extern IMgr& gbl_InputMgr,
 
 struct State
 {
-    bool    simulation;
+//  bool    simulation;
     bool    is_day;
     bool    is_kodesh;
     bool    room_motion_detected;
